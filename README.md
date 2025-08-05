@@ -50,14 +50,15 @@ jobs:
 - **create_annotated_tag** _(optional)_ - Boolean to create an annotated rather than a lightweight one (default: `false`).
 - **tag_prefix** _(optional)_ - A prefix to the tag name (default: `v`).
 - **append_to_pre_release_tag** _(optional)_ - A suffix to the pre-release tag name (default: `<branch>`).
+- **path_filter** _(optional)_ - Filter commits by file paths. Only commits that modify files starting with this path will be considered for version bumping. Useful for monorepos. (default: `false`)
 
 #### Customize the conventional commit messages & titles of changelog sections
 
 - **custom_release_rules** _(optional)_ - Comma separated list of release rules.
 
-  __Format__: `<keyword>:<release_type>:<changelog_section>` where `<changelog_section>` is optional and will default to [Angular's conventions](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular).
+  **Format**: `<keyword>:<release_type>:<changelog_section>` where `<changelog_section>` is optional and will default to [Angular's conventions](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular).
 
-  __Examples__:
+  **Examples**:
     1. `hotfix:patch,pre-feat:preminor`,
     2. `bug:patch:Bug Fixes,chore:patch:Chores`
 
