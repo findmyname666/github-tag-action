@@ -47,7 +47,7 @@ export async function getCommits(
     .filter((commit) =>
       !targetPath
         ? true
-        : commit.files?.some((file) => file.filename?.includes(targetPath))
+        : commit.files?.some((file) => file.filename?.startsWith(targetPath))
     )
     .map((commit) => ({
       message: commit.commit.message,

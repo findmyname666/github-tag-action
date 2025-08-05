@@ -373,5 +373,249 @@ describe('utils', () => {
         { message: 'feat: change to backend', hash: '4567' },
       ]);
     });
+
+    it('uses startsWith for path filtering, not partial string matching', async () => {
+      /**
+       * Given
+       */
+      const commits = [
+        {
+          commit: {
+            message: 'feat: change to packages/api',
+          },
+          files: [{ filename: 'packages/api/src/main.ts' }],
+          sha: '1234',
+        },
+        {
+          commit: {
+            message: 'feat: change to packages/graphql-api',
+          },
+          files: [{ filename: 'packages/graphql-api/src/schema.ts' }],
+          sha: '4567',
+        },
+        {
+          commit: {
+            message: 'feat: change to src with api in name',
+          },
+          files: [{ filename: 'src/api-client.ts' }],
+          sha: '7890',
+        },
+      ];
+      // @ts-ignore
+      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+
+      /**
+       * When
+       */
+      const result = await utils.getCommits('baseRef', 'headRef', 'packages/api');
+
+      /**
+       * Then
+       */
+      expect(result).toEqual([
+        { message: 'feat: change to packages/api', hash: '1234' },
+      ]);
+    });
+
+    it('filters by directory path with trailing slash', async () => {
+      /**
+       * Given
+       */
+      const commits = [
+        {
+          commit: {
+            message: 'feat: change to frontend directory',
+          },
+          files: [{ filename: 'frontend/src/components/Button.tsx' }],
+          sha: '1234',
+        },
+        {
+          commit: {
+            message: 'feat: change to frontend-utils',
+          },
+          files: [{ filename: 'frontend-utils/helper.ts' }],
+          sha: '4567',
+        },
+      ];
+      // @ts-ignore
+      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+
+      /**
+       * When
+       */
+      const result = await utils.getCommits('baseRef', 'headRef', 'frontend/');
+
+      /**
+       * Then
+       */
+      expect(result).toEqual([
+        { message: 'feat: change to frontend directory', hash: '1234' },
+      ]);
+    });
+
+    it('filters by exact file path', async () => {
+      /**
+       * Given
+       */
+      const commits = [
+        {
+          commit: {
+            message: 'feat: update package.json',
+          },
+          files: [{ filename: 'package.json' }],
+          sha: '1234',
+        },
+        {
+          commit: {
+            message: 'feat: update frontend package.json',
+          },
+          files: [{ filename: 'frontend/package.json' }],
+          sha: '4567',
+        },
+      ];
+      // @ts-ignore
+      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+
+      /**
+       * When
+       */
+      const result = await utils.getCommits('baseRef', 'headRef', 'package.json');
+
+      /**
+       * Then
+       */
+      expect(result).toEqual([
+        { message: 'feat: update package.json', hash: '1234' },
+      ]);
+    });
+
+    it('handles commits with multiple files, matching if any file starts with targetPath', async () => {
+      /**
+       * Given
+       */
+      const commits = [
+        {
+          commit: {
+            message: 'feat: cross-package changes',
+          },
+          files: [
+            { filename: 'backend/main.py' },
+            { filename: 'frontend/index.html' },
+            { filename: 'shared/types.ts' },
+          ],
+          sha: '1234',
+        },
+        {
+          commit: {
+            message: 'feat: backend only changes',
+          },
+          files: [
+            { filename: 'backend/database.py' },
+            { filename: 'backend/models.py' },
+          ],
+          sha: '4567',
+        },
+      ];
+      // @ts-ignore
+      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+
+      /**
+       * When
+       */
+      const result = await utils.getCommits('baseRef', 'headRef', 'frontend');
+
+      /**
+       * Then
+       */
+      expect(result).toEqual([
+        { message: 'feat: cross-package changes', hash: '1234' },
+      ]);
+    });
+
+    it('handles commits with no files array gracefully', async () => {
+      /**
+       * Given
+       */
+      const commits = [
+        {
+          commit: {
+            message: 'feat: merge commit with no files',
+          },
+          // No files array
+          sha: '1234',
+        },
+        {
+          commit: {
+            message: 'feat: normal commit',
+          },
+          files: [{ filename: 'frontend/index.html' }],
+          sha: '4567',
+        },
+      ];
+      // @ts-ignore
+      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+
+      /**
+       * When
+       */
+      const result = await utils.getCommits('baseRef', 'headRef', 'frontend');
+
+      /**
+       * Then
+       */
+      expect(result).toEqual([
+        { message: 'feat: normal commit', hash: '4567' },
+      ]);
+    });
+
+    it('filters commits in monorepo structure', async () => {
+      /**
+       * Given
+       */
+      const commits = [
+        {
+          commit: {
+            message: 'feat: update web app',
+          },
+          files: [{ filename: 'packages/web-app/src/App.tsx' }],
+          sha: '1234',
+        },
+        {
+          commit: {
+            message: 'feat: update web components',
+          },
+          files: [{ filename: 'packages/web-components/Button.tsx' }],
+          sha: '4567',
+        },
+        {
+          commit: {
+            message: 'feat: update mobile app',
+          },
+          files: [{ filename: 'packages/mobile-app/App.tsx' }],
+          sha: '7890',
+        },
+        {
+          commit: {
+            message: 'feat: update root config',
+          },
+          files: [{ filename: 'package.json' }],
+          sha: '0123',
+        },
+      ];
+      // @ts-ignore
+      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+
+      /**
+       * When
+       */
+      const result = await utils.getCommits('baseRef', 'headRef', 'packages/web-app');
+
+      /**
+       * Then
+       */
+      expect(result).toEqual([
+        { message: 'feat: update web app', hash: '1234' },
+      ]);
+    });
   });
-});
+})
