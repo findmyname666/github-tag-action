@@ -42,17 +42,42 @@ export async function getCommits(
 ): Promise<{ message: string; hash: string | null }[]> {
   const commits = await compareCommits(baseRef, headRef);
 
-  return commits
-    .filter((commit) => !!commit.commit.message)
-    .filter((commit) =>
-      !targetPath
-        ? true
-        : commit.files?.some((file) => file.filename?.startsWith(targetPath))
-    )
+  core.info(`Comparing ${baseRef}...${headRef}`);
+  core.info(`Found ${commits.length} raw commits`);
+
+  const filteredCommits = commits
+    .filter((commit) => {
+      const hasMessage = !!commit.commit.message;
+      if (!hasMessage) {
+        core.debug(`Filtered out commit ${commit.sha} - no message`);
+      }
+      return hasMessage;
+    })
+    .filter((commit) => {
+      if (!targetPath) return true;
+
+      const matchesPath = commit.files?.some((file) =>
+        file.filename?.startsWith(targetPath)
+      );
+
+      if (!matchesPath) {
+        core.info(
+          `Filtered out commit ${commit.sha} - no matching files for path: ${targetPath}`
+        );
+        core.info(
+          `Files in commit: ${commit.files?.map((f) => f.filename).join(', ')}`
+        );
+      }
+
+      return matchesPath;
+    })
     .map((commit) => ({
       message: commit.commit.message,
       hash: commit.sha,
     }));
+
+  core.info(`After filtering: ${filteredCommits.length} commits`);
+  return filteredCommits;
 }
 
 export function getBranchFromRef(ref: string) {
