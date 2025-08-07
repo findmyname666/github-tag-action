@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import { prerelease, rcompare, valid } from 'semver';
 // @ts-ignore
 import DEFAULT_RELEASE_TYPES from '@semantic-release/commit-analyzer/lib/default-release-types';
-import { compareCommits, listTags } from './github';
+import { compareCommits, compareCommitsWithFiles, listTags } from './github';
 import { defaultChangelogRules } from './defaults';
 import { Await } from './ts';
 
@@ -40,7 +40,7 @@ export async function getCommits(
   headRef: string,
   targetPath?: string
 ): Promise<{ message: string; hash: string | null }[]> {
-  const commits = await compareCommits(baseRef, headRef);
+  const commits = await compareCommitsWithFiles(baseRef, headRef);
 
   core.info(`Comparing ${baseRef}...${headRef}`);
   core.info(`Found ${commits.length} raw commits`);
@@ -61,10 +61,10 @@ export async function getCommits(
       );
 
       if (!matchesPath) {
-        core.info(
+        core.debug(
           `Filtered out commit ${commit.sha} - no matching files for path: ${targetPath}`
         );
-        core.info(
+        core.debug(
           `Files in commit: ${commit.files?.map((f) => f.filename).join(', ')}`
         );
       }
@@ -77,6 +77,7 @@ export async function getCommits(
     }));
 
   core.info(`After filtering: ${filteredCommits.length} commits`);
+
   return filteredCommits;
 }
 

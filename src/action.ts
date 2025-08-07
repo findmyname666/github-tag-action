@@ -124,12 +124,26 @@ export default async function main() {
 
     commits = await getCommits(previousTag.commit.sha, commitRef, pathFilter);
 
+    //let bump = await analyzeCommits(
+    //  {
+    //    releaseRules: mappedReleaseRules
+    //      ? // analyzeCommits doesn't appreciate rules with a section /shrug
+    //        mappedReleaseRules.map(({ section, ...rest }) => ({ ...rest }))
+    //      : undefined,
+    //  },
+    //  { commits, logger: { log: console.info.bind(console) } }
+    //);
+
+    let releaseRules;
+    if (mappedReleaseRules) {
+      // analyzeCommits doesn't appreciate rules with a section /shrug
+      releaseRules = mappedReleaseRules.map(({ section, ...rest }) => ({ ...rest }));
+      core.debug(`Using release rules: ${JSON.stringify(releaseRules, null, 2)}`);
+    }
+
     let bump = await analyzeCommits(
       {
-        releaseRules: mappedReleaseRules
-          ? // analyzeCommits doesn't appreciate rules with a section /shrug
-            mappedReleaseRules.map(({ section, ...rest }) => ({ ...rest }))
-          : undefined,
+        releaseRules: releaseRules || undefined,
       },
       { commits, logger: { log: console.info.bind(console) } }
     );

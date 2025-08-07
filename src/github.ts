@@ -65,6 +65,40 @@ export async function compareCommits(baseRef: string, headRef: string) {
   return commits.data.commits;
 }
 
+/**
+ * Compare `headRef` to `baseRef` (i.e. baseRef...headRef)
+ * @param baseRef - old commit
+ * @param headRef - new commit
+ */
+export async function compareCommitsWithFiles(baseRef: string, headRef: string) {
+  const octokit = getOctokitSingleton();
+  core.debug(`Comparing commits with files (${baseRef}...${headRef})`);
+
+  // Get the comparison data
+  const comparison = await octokit.repos.compareCommits({
+    ...context.repo,
+    base: baseRef,
+    head: headRef,
+  });
+
+  // Fetch detailed file information for each commit
+  const commitsWithFiles = await Promise.all(
+    comparison.data.commits.map(async (commit) => {
+      const commitDetails = await octokit.repos.getCommit({
+        ...context.repo,
+        ref: commit.sha,
+      });
+
+      return {
+        ...commit,
+        files: commitDetails.data.files || []
+      };
+    })
+  );
+
+  return commitsWithFiles;
+}
+
 export async function createTag(
   newTag: string,
   createAnnotatedTag: boolean,
