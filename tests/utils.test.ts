@@ -6,7 +6,7 @@ import { defaultChangelogRules } from '../src/defaults';
 
 jest.spyOn(core, 'debug').mockImplementation(() => {});
 jest.spyOn(core, 'warning').mockImplementation(() => {});
-jest.spyOn(github, 'compareCommits');
+jest.spyOn(github, 'compareCommitsWithFiles');
 
 const regex = /^v/;
 
@@ -322,7 +322,7 @@ describe('utils', () => {
         },
       ];
       // @ts-ignore
-      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+      jest.spyOn(github, 'compareCommitsWithFiles').mockResolvedValue(commits);
 
       /**
        * When
@@ -358,7 +358,7 @@ describe('utils', () => {
         },
       ];
       // @ts-ignore
-      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+      jest.spyOn(github, 'compareCommitsWithFiles').mockResolvedValue(commits);
 
       /**
        * When
@@ -402,7 +402,7 @@ describe('utils', () => {
         },
       ];
       // @ts-ignore
-      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+      jest.spyOn(github, 'compareCommitsWithFiles').mockResolvedValue(commits);
 
       /**
        * When
@@ -438,7 +438,7 @@ describe('utils', () => {
         },
       ];
       // @ts-ignore
-      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+      jest.spyOn(github, 'compareCommitsWithFiles').mockResolvedValue(commits);
 
       /**
        * When
@@ -474,7 +474,7 @@ describe('utils', () => {
         },
       ];
       // @ts-ignore
-      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+      jest.spyOn(github, 'compareCommitsWithFiles').mockResolvedValue(commits);
 
       /**
        * When
@@ -517,7 +517,7 @@ describe('utils', () => {
         },
       ];
       // @ts-ignore
-      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+      jest.spyOn(github, 'compareCommitsWithFiles').mockResolvedValue(commits);
 
       /**
        * When
@@ -553,7 +553,7 @@ describe('utils', () => {
         },
       ];
       // @ts-ignore
-      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+      jest.spyOn(github, 'compareCommitsWithFiles').mockResolvedValue(commits);
 
       /**
        * When
@@ -603,7 +603,7 @@ describe('utils', () => {
         },
       ];
       // @ts-ignore
-      jest.spyOn(github, 'compareCommits').mockResolvedValue(commits);
+      jest.spyOn(github, 'compareCommitsWithFiles').mockResolvedValue(commits);
 
       /**
        * When
