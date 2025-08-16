@@ -124,16 +124,6 @@ export default async function main() {
 
     commits = await getCommits(previousTag.commit.sha, commitRef, pathFilter);
 
-    //let bump = await analyzeCommits(
-    //  {
-    //    releaseRules: mappedReleaseRules
-    //      ? // analyzeCommits doesn't appreciate rules with a section /shrug
-    //        mappedReleaseRules.map(({ section, ...rest }) => ({ ...rest }))
-    //      : undefined,
-    //  },
-    //  { commits, logger: { log: console.info.bind(console) } }
-    //);
-
     let releaseRules;
     if (mappedReleaseRules) {
       // analyzeCommits doesn't appreciate rules with a section /shrug
