@@ -23,7 +23,7 @@ jest.mock(
         }),
       },
     }),
-  }))
+  })),
 );
 
 describe('github', () => {

@@ -10,13 +10,13 @@ type Tags = Await<ReturnType<typeof listTags>>;
 
 export async function getValidTags(
   prefixRegex: RegExp,
-  shouldFetchAllTags: boolean
+  shouldFetchAllTags: boolean,
 ) {
   const tags = await listTags(shouldFetchAllTags);
 
   const invalidTags = tags.filter(
     (tag) =>
-      !prefixRegex.test(tag.name) || !valid(tag.name.replace(prefixRegex, ''))
+      !prefixRegex.test(tag.name) || !valid(tag.name.replace(prefixRegex, '')),
   );
 
   invalidTags.forEach((name) => core.debug(`Found Invalid Tag: ${name}.`));
@@ -24,10 +24,13 @@ export async function getValidTags(
   const validTags = tags
     .filter(
       (tag) =>
-        prefixRegex.test(tag.name) && valid(tag.name.replace(prefixRegex, ''))
+        prefixRegex.test(tag.name) && valid(tag.name.replace(prefixRegex, '')),
     )
     .sort((a, b) =>
-      rcompare(a.name.replace(prefixRegex, ''), b.name.replace(prefixRegex, ''))
+      rcompare(
+        a.name.replace(prefixRegex, ''),
+        b.name.replace(prefixRegex, ''),
+      ),
     );
 
   validTags.forEach((tag) => core.debug(`Found Valid Tag: ${tag.name}.`));
@@ -38,7 +41,7 @@ export async function getValidTags(
 export async function getCommits(
   baseRef: string,
   headRef: string,
-  targetPath?: string
+  targetPath?: string,
 ): Promise<{ message: string; hash: string | null }[]> {
   const commits = await compareCommitsWithFiles(baseRef, headRef);
 
@@ -57,15 +60,15 @@ export async function getCommits(
       if (!targetPath) return true;
 
       const matchesPath = commit.files?.some((file) =>
-        file.filename?.startsWith(targetPath)
+        file.filename?.startsWith(targetPath),
       );
 
       if (!matchesPath) {
         core.debug(
-          `Filtered out commit ${commit.sha} - no matching files for path: ${targetPath}`
+          `Filtered out commit ${commit.sha} - no matching files for path: ${targetPath}`,
         );
         core.debug(
-          `Files in commit: ${commit.files?.map((f) => f.filename).join(', ')}`
+          `Files in commit: ${commit.files?.map((f) => f.filename).join(', ')}`,
         );
       }
 
@@ -92,13 +95,13 @@ export function isPr(ref: string) {
 export function getLatestTag(
   tags: Tags,
   prefixRegex: RegExp,
-  tagPrefix: string
+  tagPrefix: string,
 ) {
   return (
     tags.find(
       (tag) =>
         prefixRegex.test(tag.name) &&
-        !prerelease(tag.name.replace(prefixRegex, ''))
+        !prerelease(tag.name.replace(prefixRegex, '')),
     ) || {
       name: `${tagPrefix}0.0.0`,
       commit: {
@@ -111,7 +114,7 @@ export function getLatestTag(
 export function getLatestPrereleaseTag(
   tags: Tags,
   identifier: string,
-  prefixRegex: RegExp
+  prefixRegex: RegExp,
 ) {
   return tags
     .filter((tag) => prerelease(tag.name.replace(prefixRegex, '')))
@@ -129,7 +132,7 @@ export function mapCustomReleaseRules(customReleaseTypes: string) {
 
       if (parts.length < 2) {
         core.warning(
-          `${customReleaseRule} is not a valid custom release definition.`
+          `${customReleaseRule} is not a valid custom release definition.`,
         );
         return false;
       }
@@ -137,12 +140,12 @@ export function mapCustomReleaseRules(customReleaseTypes: string) {
       const defaultRule = defaultChangelogRules[parts[0].toLowerCase()];
       if (customReleaseRule.length !== 3) {
         core.debug(
-          `${customReleaseRule} doesn't mention the section for the changelog.`
+          `${customReleaseRule} doesn't mention the section for the changelog.`,
         );
         core.debug(
           defaultRule
             ? `Default section (${defaultRule.section}) will be used instead.`
-            : "The commits matching this rule won't be included in the changelog."
+            : "The commits matching this rule won't be included in the changelog.",
         );
       }
 
@@ -167,14 +170,14 @@ export function mapCustomReleaseRules(customReleaseTypes: string) {
 }
 
 export function mergeWithDefaultChangelogRules(
-  mappedReleaseRules: ReturnType<typeof mapCustomReleaseRules> = []
+  mappedReleaseRules: ReturnType<typeof mapCustomReleaseRules> = [],
 ) {
   const mergedRules = mappedReleaseRules.reduce(
     (acc, curr) => ({
       ...acc,
       [curr.type]: curr,
     }),
-    { ...defaultChangelogRules }
+    { ...defaultChangelogRules },
   );
 
   return Object.values(mergedRules).filter((rule) => !!rule.section);

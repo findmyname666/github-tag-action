@@ -407,7 +407,11 @@ describe('utils', () => {
       /**
        * When
        */
-      const result = await utils.getCommits('baseRef', 'headRef', 'packages/api');
+      const result = await utils.getCommits(
+        'baseRef',
+        'headRef',
+        'packages/api',
+      );
 
       /**
        * Then
@@ -479,7 +483,11 @@ describe('utils', () => {
       /**
        * When
        */
-      const result = await utils.getCommits('baseRef', 'headRef', 'package.json');
+      const result = await utils.getCommits(
+        'baseRef',
+        'headRef',
+        'package.json',
+      );
 
       /**
        * Then
@@ -608,7 +616,11 @@ describe('utils', () => {
       /**
        * When
        */
-      const result = await utils.getCommits('baseRef', 'headRef', 'packages/web-app');
+      const result = await utils.getCommits(
+        'baseRef',
+        'headRef',
+        'packages/web-app',
+      );
 
       /**
        * Then
@@ -618,4 +630,4 @@ describe('utils', () => {
       ]);
     });
   });
-})
+});

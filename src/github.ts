@@ -30,7 +30,7 @@ export function getOctokitSingleton() {
 export async function listTags(
   shouldFetchAllTags = false,
   fetchedTags: Tag[] = [],
-  page = 1
+  page = 1,
 ): Promise<Tag[]> {
   const octokit = getOctokitSingleton();
 
@@ -52,7 +52,10 @@ export async function listTags(
  * @param baseRef - old commit
  * @param headRef - new commit
  */
-export async function compareCommitsWithFiles(baseRef: string, headRef: string) {
+export async function compareCommitsWithFiles(
+  baseRef: string,
+  headRef: string,
+) {
   const octokit = getOctokitSingleton();
   core.debug(`Comparing commits with files (${baseRef}...${headRef})`);
 
@@ -73,9 +76,9 @@ export async function compareCommitsWithFiles(baseRef: string, headRef: string) 
 
       return {
         ...commit,
-        files: commitDetails.data.files || []
+        files: commitDetails.data.files || [],
       };
-    })
+    }),
   );
 
   return commitsWithFiles;
@@ -84,7 +87,7 @@ export async function compareCommitsWithFiles(baseRef: string, headRef: string) 
 export async function createTag(
   newTag: string,
   createAnnotatedTag: boolean,
-  GITHUB_SHA: string
+  GITHUB_SHA: string,
 ) {
   const octokit = getOctokitSingleton();
   let annotatedTag:

@@ -27,7 +27,7 @@ export default async function main() {
   const preReleaseBranches = core.getInput('pre_release_branches');
   const appendToPreReleaseTag = core.getInput('append_to_pre_release_tag');
   const createAnnotatedTag = /true/i.test(
-    core.getInput('create_annotated_tag')
+    core.getInput('create_annotated_tag'),
   );
   const dryRun = core.getInput('dry_run');
   const customReleaseRules = core.getInput('custom_release_rules');
@@ -72,13 +72,13 @@ export default async function main() {
 
   const validTags = await getValidTags(
     prefixRegex,
-    /true/i.test(shouldFetchAllTags)
+    /true/i.test(shouldFetchAllTags),
   );
   const latestTag = getLatestTag(validTags, prefixRegex, tagPrefix);
   const latestPrereleaseTag = getLatestPrereleaseTag(
     validTags,
     identifier,
-    prefixRegex
+    prefixRegex,
   );
 
   let commits: Await<ReturnType<typeof getCommits>>;
@@ -98,7 +98,7 @@ export default async function main() {
     } else {
       previousTag = gte(
         latestTag.name.replace(prefixRegex, ''),
-        latestPrereleaseTag.name.replace(prefixRegex, '')
+        latestPrereleaseTag.name.replace(prefixRegex, ''),
       )
         ? latestTag
         : latestPrereleaseTag;
@@ -117,7 +117,7 @@ export default async function main() {
     }
 
     core.info(
-      `Previous tag was ${previousTag.name}, previous version was ${previousVersion.version}.`
+      `Previous tag was ${previousTag.name}, previous version was ${previousVersion.version}.`,
     );
     core.setOutput('previous_version', previousVersion.version);
     core.setOutput('previous_tag', previousTag.name);
@@ -127,15 +127,19 @@ export default async function main() {
     let releaseRules;
     if (mappedReleaseRules) {
       // analyzeCommits doesn't appreciate rules with a section /shrug
-      releaseRules = mappedReleaseRules.map(({ section, ...rest }) => ({ ...rest }));
-      core.debug(`Using release rules: ${JSON.stringify(releaseRules, null, 2)}`);
+      releaseRules = mappedReleaseRules.map(({ section, ...rest }) => ({
+        ...rest,
+      }));
+      core.debug(
+        `Using release rules: ${JSON.stringify(releaseRules, null, 2)}`,
+      );
     }
 
     let bump = await analyzeCommits(
       {
         releaseRules: releaseRules || undefined,
       },
-      { commits, logger: { log: console.info.bind(console) } }
+      { commits, logger: { log: console.info.bind(console) } },
     );
 
     // Determine if we should continue with tag creation based on main vs prerelease branch
@@ -153,7 +157,7 @@ export default async function main() {
     // Default bump is set to false and we did not find an automatic bump
     if (!shouldContinue) {
       core.debug(
-        'No commit specifies the version bump. Skipping the tag creation.'
+        'No commit specifies the version bump. Skipping the tag creation.',
       );
       return;
     }
@@ -211,14 +215,14 @@ export default async function main() {
       },
       lastRelease: { gitTag: latestTag.name },
       nextRelease: { gitTag: newTag, version: newVersion },
-    }
+    },
   );
   core.info(`Changelog is ${changelog}.`);
   core.setOutput('changelog', changelog);
 
   if (!isReleaseBranch && !isPreReleaseBranch) {
     core.info(
-      'This branch is neither a release nor a pre-release branch. Skipping the tag creation.'
+      'This branch is neither a release nor a pre-release branch. Skipping the tag creation.',
     );
     return;
   }
